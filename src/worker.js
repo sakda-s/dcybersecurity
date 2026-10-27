@@ -1,13 +1,17 @@
-// Cloudflare Pages Function: POST /api/contact
-// ส่งอีเมลผ่าน Resend ตั้งค่าที่ Pages > Settings > Variables and Secrets:
-//   RESEND_API_KEY (Secret), CONTACT_TO (อีเมลที่รับแจ้ง), CONTACT_FROM (เช่น "dcybersecurity <noreply@dcybersecurity.com>")
+// Cloudflare Worker (Workers Static Assets)
+// - ไฟล์ในโฟลเดอร์ public/ ถูกเสิร์ฟเป็นเว็บอัตโนมัติ
+// - POST /api/contact ส่งอีเมลผ่าน Resend
+// ตัวแปรที่ต้องตั้งใน Dashboard (Settings > Variables and Secrets):
+//   RESEND_API_KEY (Secret), CONTACT_TO, CONTACT_FROM เช่น "dcybersecurity <noreply@dcybersecurity.com>"
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 
 const clean = (v, max) => String(v ?? "").replace(/[\r\n]+/g, " ").trim().slice(0, max);
 
-export async function onRequestPost({ request, env }) {
+async function handleContact(request, env) {
+  if (request.method !== "POST") return json({ ok: false }, 405);
+
   const origin = request.headers.get("Origin");
   if (origin && new URL(origin).host !== new URL(request.url).host) return json({ ok: false }, 403);
 
@@ -36,4 +40,10 @@ export async function onRequestPost({ request, env }) {
   return res.ok ? json({ ok: true }) : json({ ok: false, error: "send_failed" }, 502);
 }
 
-export const onRequest = () => json({ ok: false }, 405);
+export default {
+  async fetch(request, env) {
+    const { pathname } = new URL(request.url);
+    if (pathname === "/api/contact") return handleContact(request, env);
+    return env.ASSETS.fetch(request);
+  },
+};
