@@ -1,0 +1,4 @@
+# คัดลอกเป็น .dev.vars สำหรับทดสอบในเครื่อง (ห้าม commit ไฟล์ .dev.vars)
+RESEND_API_KEY=re_xxxxxxxxxxxx
+CONTACT_TO=you@example.com
+CONTACT_FROM=dcybersecurity <onboarding@resend.dev>

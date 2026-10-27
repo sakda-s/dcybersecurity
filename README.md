@@ -1,43 +1,50 @@
-# VOIDGATE – cyber-themed static site
+# dcybersecurity.com
 
-Plain HTML/CSS/JS. No build step, no dependencies.
+เว็บไซต์ **ดีCyber (dcybersecurity.com)** เป็น static site พร้อม Cloudflare Pages Function สำหรับฟอร์มติดต่อ (ไม่ต้อง build)
 
-## Run locally
+## โครงสร้าง
+```
+public/                 # ไฟล์เว็บ (Output directory)
+  index.html  privacy.html  terms.html  404.html
+  css/style.css  js/main.js  favicon.svg
+  robots.txt  sitemap.xml  _headers
+functions/api/contact.js  # POST /api/contact ส่งอีเมลผ่าน Resend
+wrangler.toml  .dev.vars.example
+```
 
-Open `index.html` in a browser, or run `npx serve .`
-
-## Push to GitHub
-
+## 1) อัปขึ้น GitHub
 ```bash
-git init
+git init -b main
 git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/<your-user>/<your-repo>.git
+git commit -m "dcybersecurity.com: production-ready for Cloudflare Pages"
+git remote add origin https://github.com/sakda-s/dcybersecurity.git
 git push -u origin main
 ```
 
-## Deploy on Cloudflare Pages (auto-deploy on every push)
+## 2) ตั้งค่าอีเมลรับฟอร์ม (Resend)
+1. สมัคร https://resend.com แล้วสร้าง API key
+2. ยืนยันโดเมน dcybersecurity.com ใน Resend (เพิ่ม DNS record ที่ Cloudflare) เพื่อส่งจาก `noreply@dcybersecurity.com`
+   (ทดสอบก่อนได้ด้วย `onboarding@resend.dev` ซึ่งส่งถึงอีเมลเจ้าของบัญชี Resend เท่านั้น)
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-2. Pick the repo and branch `main`.
-3. Build settings:
-   - Framework preset: **None**
-   - Build command: *(leave empty)*
-   - Build output directory: `/`
-4. **Save and Deploy.** You get `https://<project>.pages.dev`.
-5. Custom domain: project → **Custom domains** → **Set up a domain**.
+## 3) Deploy บน Cloudflare Pages
+1. Workers & Pages → Create → Pages → Connect to Git → เลือก `sakda-s/dcybersecurity`
+2. Framework preset: **None** · Build command: *(ว่าง)* · Build output directory: `public`
+3. Settings → Variables and Secrets (Production) เพิ่ม
+   - `RESEND_API_KEY` (Secret)
+   - `CONTACT_TO` = อีเมลที่ต้องการรับแจ้ง
+   - `CONTACT_FROM` = `dcybersecurity <noreply@dcybersecurity.com>`
+4. Re-deploy หนึ่งครั้งหลังตั้งค่าตัวแปร
+5. Custom domains → เพิ่ม `dcybersecurity.com` และ `www.dcybersecurity.com`
 
-## Or deploy from the command line
-
+## ทดสอบในเครื่อง
 ```bash
-npx wrangler login
-npx wrangler pages deploy . --project-name voidgate
+cp .dev.vars.example .dev.vars   # แก้ค่าจริง
+npx wrangler pages dev public
 ```
 
-## Customise
+## ตรวจหลัง deploy
+- ส่งฟอร์มจริง 1 ครั้งและดูว่าอีเมลเข้า
+- เปิด DevTools Console ว่าไม่มี error จาก CSP (ใช้ฟอนต์ Google Fonts เท่านั้น)
+- ส่ง `https://dcybersecurity.com/sitemap.xml` ใน Google Search Console
 
-- Brand, copy and email: edit `index.html` (search for `VOIDGATE` and `hello@example.com`).
-- Colours: CSS variables at the top of `<style>`.
-- Terminal commands: the `cmds` object in the `<script>`.
-- Security headers: `_headers` (Cloudflare Pages applies it automatically). If you add external scripts or fonts, update the `Content-Security-Policy` line.
+> หมายเหตุ: `privacy.html` และ `terms.html` เป็นร่างทั่วไป ควรให้ผู้เชี่ยวชาญด้านกฎหมายตรวจก่อนใช้จริง
