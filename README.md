@@ -1,40 +1,13 @@
-# dcybersecurity.com
+# ดีCyber – dcybersecurity.com
+เว็บไซต์ Static (HTML/CSS/JS) ไม่ต้อง build
 
-เว็บไซต์ **ดีCyber (dcybersecurity.com)** รันบน Cloudflare Workers (Static Assets) ไม่ต้อง build
+## Deploy
+1. `git init && git add . && git commit -m "Initial site"`
+2. `git branch -M main && git remote add origin https://github.com/sakda-s/dcybersecurity.git && git push -u origin main`
+3. Cloudflare Pages → Connect to Git → เลือก repo → Framework: None, Build command: เว้นว่าง, Output directory: `/`
+4. Custom domains → เพิ่ม `dcybersecurity.com`
 
-## โครงสร้าง
-```
-public/            # ไฟล์เว็บ (index, privacy, terms, 404, css, js, _headers, robots, sitemap)
-src/worker.js      # POST /api/contact ส่งอีเมลผ่าน Resend
-wrangler.toml
-.dev.vars.example
-```
-
-## 1) อัปขึ้น GitHub
-```bash
-git add .
-git commit -m "Switch to Workers static assets"
-git push
-```
-
-## 2) ตั้งค่าอีเมลรับฟอร์ม (Resend)
-1. สมัคร https://resend.com แล้วสร้าง API key
-2. ยืนยันโดเมน dcybersecurity.com ใน Resend (เพิ่ม DNS record ที่ Cloudflare)
-   ทดสอบก่อนได้ด้วย `onboarding@resend.dev` ซึ่งส่งถึงอีเมลเจ้าของบัญชี Resend เท่านั้น
-
-## 3) Deploy บน Cloudflare (Workers Builds)
-- Build command: *(ว่าง)*
-- Deploy command: `npx wrangler deploy`
-- Settings → Variables and Secrets เพิ่ม
-  - `RESEND_API_KEY` (Secret)
-  - `CONTACT_TO` = อีเมลที่ต้องการรับแจ้ง
-  - `CONTACT_FROM` = `dcybersecurity <noreply@dcybersecurity.com>`
-- Settings → Domains & Routes → เพิ่ม `dcybersecurity.com` และ `www.dcybersecurity.com`
-
-## ทดสอบในเครื่อง
-```bash
-cp .dev.vars.example .dev.vars   # แก้ค่าจริง
-npx wrangler dev
-```
-
-> หมายเหตุ: `privacy.html` และ `terms.html` เป็นร่างทั่วไป ควรให้ผู้เชี่ยวชาญด้านกฎหมายตรวจก่อนใช้จริง
+## ต้องแก้เป็นข้อมูลจริงก่อนเปิดใช้งาน
+- `script.js`: `FORM_ENDPOINT` และ `FALLBACK_EMAIL`
+- `index.html`: ที่อยู่/เบอร์โทร/นโยบายความเป็นส่วนตัวใน Footer, ลิงก์บทความ (`#`), โลโก้พันธมิตร/กรณีศึกษา (ค้นหา `TODO`)
+- ห้ามอ้างใบรับรอง ISO หรือตัวเลขผลงานหากไม่มีหลักฐานยืนยัน
